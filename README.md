@@ -22,13 +22,11 @@ effort and local floral richness?
 
 ## Repository structure
 
-- `data/raw/` contains instructions for obtaining the original data.
-- `data/processed/` holds the tables produced by the preprocessing scripts.
-- `scripts/` contains the code used to clean and analyze the data.
-- `results/` is for figures, maps, and summaries.
+- `raw_data/` contains instructions for downloading the original survey data.
+- `clean_data/` is where the notebook saves the CSV it generates.
+- `scripts/` contains the R notebook used to preprocess the bee records.
+- `figures/` is for maps and plots I will make later in the project.
 
 ## First preprocessing step
 
-I will link bee records to sampling sites using the event ID and count
-distinct native bee species recorded at each site. The output will keep
-all 55 sites and retain sampling effort and floral richness for analysis.
+In `scripts/01_preprocess_bee_data.ipynb`, I downloaded the original survey ZIP, extracted the bee records, and read the tab-separated file into R. I checked the number of rows and saved all 236 records as a CSV for later analysis.
