@@ -1,0 +1,174 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMImuO4ZwHj8+1+gWGmmEf5",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "ir",
+      "display_name": "R"
+    },
+    "language_info": {
+      "name": "R"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/lagalindoa/bogota_native_bees_capstone/blob/main/scripts/01_preprocess_bee_data.ipynb.\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 13,
+      "metadata": {
+        "id": "paLwosfQJ3fr"
+      },
+      "outputs": [],
+      "source": [
+        "# Download the original bee survey ZIP file\n",
+        "url <- \"https://ipt.biodiversidad.co/sib/archive.do?r=001_bio-em_sc_2022011\"\n",
+        "download.file(url, \"bee_survey.zip\", mode = \"wb\")"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# List the files inside the ZIP\n",
+        "unzip(\"bee_survey.zip\", list = TRUE)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 286
+        },
+        "id": "Mj3sPsqLKZQz",
+        "outputId": "d362cb49-3a4a-4308-a7eb-1e0adff63627"
+      },
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A data.frame: 6 × 3</caption>\n",
+              "<thead>\n",
+              "\t<tr><th scope=col>Name</th><th scope=col>Length</th><th scope=col>Date</th></tr>\n",
+              "\t<tr><th scope=col>&lt;chr&gt;</th><th scope=col>&lt;dbl&gt;</th><th scope=col>&lt;dttm&gt;</th></tr>\n",
+              "</thead>\n",
+              "<tbody>\n",
+              "\t<tr><td>extendedmeasurementorfact.txt</td><td>188747</td><td>2023-01-19 00:23:00</td></tr>\n",
+              "\t<tr><td>multimedia.txt               </td><td>  7728</td><td>2023-01-19 00:23:00</td></tr>\n",
+              "\t<tr><td>eml.xml                      </td><td> 22481</td><td>2023-01-19 00:23:00</td></tr>\n",
+              "\t<tr><td>event.txt                    </td><td> 23133</td><td>2023-01-19 00:23:00</td></tr>\n",
+              "\t<tr><td>meta.xml                     </td><td>  7829</td><td>2023-01-19 00:23:00</td></tr>\n",
+              "\t<tr><td>occurrence.txt               </td><td>261430</td><td>2023-01-19 00:23:00</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA data.frame: 6 × 3\n\n| Name &lt;chr&gt; | Length &lt;dbl&gt; | Date &lt;dttm&gt; |\n|---|---|---|\n| extendedmeasurementorfact.txt | 188747 | 2023-01-19 00:23:00 |\n| multimedia.txt                |   7728 | 2023-01-19 00:23:00 |\n| eml.xml                       |  22481 | 2023-01-19 00:23:00 |\n| event.txt                     |  23133 | 2023-01-19 00:23:00 |\n| meta.xml                      |   7829 | 2023-01-19 00:23:00 |\n| occurrence.txt                | 261430 | 2023-01-19 00:23:00 |\n\n",
+            "text/latex": "A data.frame: 6 × 3\n\\begin{tabular}{lll}\n Name & Length & Date\\\\\n <chr> & <dbl> & <dttm>\\\\\n\\hline\n\t extendedmeasurementorfact.txt & 188747 & 2023-01-19 00:23:00\\\\\n\t multimedia.txt                &   7728 & 2023-01-19 00:23:00\\\\\n\t eml.xml                       &  22481 & 2023-01-19 00:23:00\\\\\n\t event.txt                     &  23133 & 2023-01-19 00:23:00\\\\\n\t meta.xml                      &   7829 & 2023-01-19 00:23:00\\\\\n\t occurrence.txt                & 261430 & 2023-01-19 00:23:00\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "  Name                          Length Date               \n",
+              "1 extendedmeasurementorfact.txt 188747 2023-01-19 00:23:00\n",
+              "2 multimedia.txt                  7728 2023-01-19 00:23:00\n",
+              "3 eml.xml                        22481 2023-01-19 00:23:00\n",
+              "4 event.txt                      23133 2023-01-19 00:23:00\n",
+              "5 meta.xml                        7829 2023-01-19 00:23:00\n",
+              "6 occurrence.txt                261430 2023-01-19 00:23:00"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Extract the file that contains the bee records\n",
+        "unzip(\"bee_survey.zip\", files = \"occurrence.txt\", exdir = \"raw_data\")\n",
+        "# Read the tab-separated bee records into a table.\n",
+        "bees <- read.delim(\"raw_data/occurrence.txt\", quote = \"\", fileEncoding = \"UTF-8\")\n",
+        "# Count the rows in the original table.\n",
+        "nrow(bees)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "id": "1mL9cWuUKl28",
+        "outputId": "2b0bb5b4-f66b-46ad-cff7-25cb1a06415e"
+      },
+      "execution_count": 8,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "236"
+            ],
+            "text/markdown": "236",
+            "text/latex": "236",
+            "text/plain": [
+              "[1] 236"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Count records identified to species, genus, or family.\n",
+        "table(bees$taxonRank)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 71
+        },
+        "id": "VkM6fgpzKyHS",
+        "outputId": "07d98f22-5c80-43fe-8516-7a42f240a9f9"
+      },
+      "execution_count": 10,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "\n",
+              "Especie Familia  Género \n",
+              "    190      15      31 "
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Create a folder for the output file.\n",
+        "dir.create(\"clean_data\", showWarnings = FALSE)\n",
+        "# Save all bee records as a CSV file.\n",
+        "write.csv(bees, \"clean_data/bee_records.csv\", row.names = FALSE)"
+      ],
+      "metadata": {
+        "id": "OyJWROXZLKdX"
+      },
+      "execution_count": 14,
+      "outputs": []
+    }
+  ]
+}
